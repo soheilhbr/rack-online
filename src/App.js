@@ -1,6 +1,6 @@
-import { Eventcalendar, setOptions, localeFa } from '@mobiscroll/react';
+import { Button, Eventcalendar, formatDate, Popup, setOptions, Toast, localeFa } from '@mobiscroll/react';
 import '@mobiscroll/react/dist/css/mobiscroll.min.css';
-import { useMemo } from 'react';
+import { useMemo,useState,useRef,useCallback } from 'react';
 
 setOptions({
   locale: localeFa,
@@ -166,19 +166,173 @@ function App() {
     ],
     [],
   );
+  const defaultAppointments = []
+  const [appointments, setAppointments] = useState(defaultAppointments);
+  const [isOpen, setOpen] = useState(false);
+  const [anchor, setAnchor] = useState(null);
+  const [currentEvent, setCurrentEvent] = useState(null);
+  const [info, setInfo] = useState('');
+  const [time, setTime] = useState('');
+  const [status, setStatus] = useState('');
+  const [reason, setReason] = useState('');
+  const [location, setLocation] = useState('');
+  const [buttonText, setButtonText] = useState('');
+  const [buttonType, setButtonType] = useState('');
+  const [bgColor, setBgColor] = useState('');
+  const [isToastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const timerRef = useRef(null);
+
+
+  
+
+
+  const handleEventHoverIn = useCallback((args) => {
+    const event = args.event;
+    const time = formatDate('hh:mm A', new Date(event.start)) + ' - ' + formatDate('hh:mm A', new Date(event.end));
+
+    setCurrentEvent(event);
+
+    if (event.confirmed) {
+      setStatus('Confirmed');
+      setButtonText('Cancel appointment');
+      setButtonType('warning');
+    } else {
+      setStatus('Canceled');
+      setButtonText('Confirm appointment');
+      setButtonType('success');
+    }
+
+    setBgColor(event.color);
+    setInfo(event.title + ', Age: ' + event.age);
+    setTime(time);
+    setReason(event.reason);
+    setLocation(event.location);
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    setAnchor(args.domEvent.target);
+    setOpen(true);
+  }, []);
+
+  const handleEventHoverOut = useCallback(() => {
+    timerRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 200);
+  }, []);
+
+  const handleEventClick = useCallback(() => {
+    setOpen(true);
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    timerRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 200);
+  }, []);
+
+  const handleToastClose = useCallback(() => {
+    setToastOpen(false);
+  }, []);
+
+  const setStatusButton = useCallback(() => {
+    setOpen(false);
+    const index = appointments.findIndex((item) => item.id === currentEvent.id);
+    const newApp = [...appointments];
+    newApp[index].confirmed = !appointments[index].confirmed;
+    setAppointments(newApp);
+    setToastMessage('Appointment ' + (currentEvent.confirmed ? 'confirmed' : 'canceled'));
+    setToastOpen(true);
+  }, [appointments, currentEvent]);
+
+  const viewFile = useCallback(() => {
+    setOpen(false);
+    setToastMessage('View file');
+    setToastOpen(true);
+  }, []);
+
+  const deleteApp = useCallback(() => {
+    setAppointments(appointments.filter((item) => item.id !== currentEvent.id));
+    setOpen(false);
+    setToastMessage('Appointment deleted');
+    setToastOpen(true);
+  }, [appointments, currentEvent]);
 
   return (
+    <>
     <Eventcalendar
       clickToCreate={true}
       dragToCreate={true}
       dragToMove={true}
-      dragToResize={true}
+      dragToResize={false}
       eventDelete={true}
 
       view={myView}
-      data={myEvents}
+
       resources={myResources}
+
+
+
+      data={appointments}
+   
+  
+  
+  
+      showEventTooltip={false}
+      // height={260}
+      onEventHoverIn={handleEventClick}
+      onEventHoverOut={handleEventHoverOut}
+      onEventClick={handleEventClick}
     />
+    <Popup
+    display="anchored"
+    isOpen={isOpen}
+    anchor={anchor}
+    touchUi={false}
+    showOverlay={false}
+    contentPadding={false}
+    closeOnOverlayClick={false}
+    width={350}
+    cssClass="md-tooltip"
+  >
+    <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div className="md-tooltip-header" style={{ backgroundColor: bgColor }}>
+        <span className="md-tooltip-name-age">{info}</span>
+        <span className="md-tooltip-time">{time}</span>
+      </div>
+      <div className="md-tooltip-info">
+        <div className="md-tooltip-title">
+          Status: <span className="md-tooltip-status md-tooltip-text">{status}</span>
+          <Button color={buttonType} variant="outline" className="md-tooltip-status-button" onClick={setStatusButton}>
+            {buttonText}
+          </Button>
+        </div>
+        <div className="md-tooltip-title">
+          Reason for visit: <span className="md-tooltip-reason md-tooltip-text">{reason}</span>
+        </div>
+        <div className="md-tooltip-title">
+          Location: <span className="md-tooltip-location md-tooltip-text">{location}</span>
+        </div>
+        <Button color="secondary" className="md-tooltip-view-button" onClick={viewFile}>
+          View patient file
+        </Button>
+        <Button color="danger" variant="outline" className="md-tooltip-delete-button" onClick={deleteApp}>
+          Delete appointment
+        </Button>
+      </div>
+    </div>
+  </Popup>
+  </>
+
   );
 }
 
