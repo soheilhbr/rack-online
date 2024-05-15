@@ -14,6 +14,7 @@ function App() {
       timeline: {
         type: 'month',
       },
+
     }),
     [],
   );
@@ -23,7 +24,7 @@ function App() {
       {
         start: '2024-05-02T00:00',
         end: '2024-05-05T00:00',
-        title: 'Event 1',
+        title: 'sidg ',
         resource: 1,
       },
       {
@@ -57,6 +58,7 @@ function App() {
         resource: 7,
       },
       {
+
         start: '2024-05-22T00:00',
         end: '2024-05-28T00:00',
         title: 'Event 7',
@@ -172,7 +174,7 @@ function App() {
       dragToMove={true}
       dragToResize={true}
       eventDelete={true}
-      
+
       view={myView}
       data={myEvents}
       resources={myResources}
