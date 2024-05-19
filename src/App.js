@@ -1,11 +1,16 @@
 import { Button, Eventcalendar, formatDate, Popup, setOptions, Toast, localeFa } from '@mobiscroll/react';
 import '@mobiscroll/react/dist/css/mobiscroll.min.css';
 import { useMemo,useState,useRef,useCallback } from 'react';
+import './App.css';
+
+
 
 setOptions({
   locale: localeFa,
-  theme: 'ios',
-  themeVariant: 'light'
+  theme: 'material',
+  themeVariant: 'light',
+  rtl:true,
+ display:"bubble",
 });
 
 function App() {
@@ -13,17 +18,33 @@ function App() {
     () => ({
       timeline: {
         type: 'month',
+        // resolutionHorizontal:'hour',
+        size:1
+        // maxEventStack:'all',
+        // timeCellStep:1320,
+        // timeLabelStep:-1320,
+      
+        // startTime:"14:00",
+        // endTime:'12:00'
+     
+        // endTime:"12:00",
+       
+      
       },
 
     }),
     [],
   );
+  const onResize = useCallback(() => {
+    // on resize logic
+  }, []);
+
 
   const myEvents = useMemo(
     () => [
       {
-        start: '2024-05-02T00:00',
-        end: '2024-05-05T00:00',
+        start: '2024-05-01T00:00',
+        end: '2024-05-03T00:00',
         title: 'sidg ',
         resource: 1,
       },
@@ -90,8 +111,43 @@ function App() {
     () => [
       {
         id: 1,
-        name: 'Resource A',
+        name: 'اتاق های یک تخته',
+        background:"#aaaaff",
         color: '#e20000',
+        collapsed:true,
+        children:[{
+          id: 23,
+          name: 'اتاق101',
+          color: '#e20000',
+          collapsed:true,
+        },
+        {
+          id: 24,
+          name: 'اتاق 102',
+          color: '#e20000',
+          collapsed:true,
+        },
+        {
+          id: 25,
+          name: 'اتاق103',
+          color: '#e20000',
+          collapsed:true,
+        },
+        {
+          id: 26,
+          name: 'اتاق104',
+          color: '#e20000',
+          collapsed:true,
+        }
+        ,{
+          id: 27,
+          name: 'اتاق105',
+          color: '#e20000',
+          collapsed:true,
+        }
+      
+      ]
+       
       },
       {
         id: 2,
@@ -184,8 +240,7 @@ function App() {
 
   const timerRef = useRef(null);
 
-
-  
+  const inputRef = useRef(null)  
 
 
   const handleEventHoverIn = useCallback((args) => {
@@ -225,7 +280,7 @@ function App() {
   }, []);
 
   const handleEventClick = useCallback(() => {
-    setOpen(true);
+    setOpen(false);
   }, []);
 
   const handleMouseEnter = useCallback(() => {
@@ -259,7 +314,7 @@ function App() {
     setToastMessage('View file');
     setToastOpen(true);
   }, []);
-
+  const[withCol,setWithCol]=useState(7);
   const deleteApp = useCallback(() => {
     setAppointments(appointments.filter((item) => item.id !== currentEvent.id));
     setOpen(false);
@@ -268,30 +323,91 @@ function App() {
   }, [appointments, currentEvent]);
 
   return (
-    <>
+    <div onClick={(e)=>{
+      
+      inputRef.current.querySelectorAll('.mbsc-timeline-day').forEach(item=>{
+        // console.log(inputRef.current)
+        console.log(item.children.forEach(item2=>{
+          console.log(item2)
+        }))
+        //item.style.width=item.style.width/1.2
+
+      })
+      inputRef.current.querySelectorAll('.mbsc-timeline-column').forEach(item=>{
+        //item.style.width=item.style.width/1.2
+      })
+      inputRef.current.querySelectorAll('.mbsc-timeline-events').forEach(item=>{
+        //item.style.width=item.style.width/1.2
+        //item.style.right=item.style.right/1.2
+      })
+   
+      setWithCol(withCol-1);
+      // inputRef.current.querySelector('.mbsc-timeline').style.width= '100vw';
+    }}
+    ref={inputRef}>
     <Eventcalendar
-      clickToCreate={true}
+      // clickToCreate={true}
       dragToCreate={true}
       dragToMove={true}
-      dragToResize={false}
-      eventDelete={true}
-
+      dragToResize={true}
+      
+      // eventDelete={true}
+      rtl={true}
+          touchUi={"auto"}
       view={myView}
-
+      actionableEvents={true}
+      mousewheel={true}
+      dragTimeStep={120}
+    
       resources={myResources}
+       
+      // eventOrder={myEvents}
+      onEventCreate={(args,inst)=>{
+        args.event.start.setHours(14)
+        args.event.start.setMinutes(0)
+        args.event.end.setHours(12)
+        args.event.end.setMinutes(0)
 
+      }}
+     
+      onEventHoverIn={(args,inst)=>{
+        // args.event.start.setHours(14)
+        // args.event.start.setMinutes(0)
+        // args.event.end.setHours(12)
+        // args.event.end.setMinutes(0)
+      }}
+      onEventClick={(args,inst)=>{
+        args.event.start.setHours(14)
+        args.event.start.setMinutes(0)
+        args.event.end.setHours(12)
+        args.event.end.setMinutes(0)
 
-
-      data={appointments}
+      }}
+      onEventDragEnter={(args,inst)=>{
+        // args.event.start.setHours(14)
+        // args.event.start.setMinutes(0)
+        // args.event.end.setHours(12)
+        // args.event.end.setMinutes(0)
+      }}
+      onEventDragStart={(args,inst)=>{
+        // args.event.start.setHours(14)
+        // args.event.start.setMinutes(0)
+        // args.event.end.setHours(12)
+        // args.event.end.setMinutes(0)
+      }}
+      
+      data={myEvents}
    
   
   
   
-      showEventTooltip={false}
+      // showEventTooltip={false}
       // height={260}
-      onEventHoverIn={handleEventClick}
+      // onEventHoverIn={handleEventHoverIn}
       onEventHoverOut={handleEventHoverOut}
-      onEventClick={handleEventClick}
+      
+    
+      onEventDoubleClick={  handleEventHoverIn}
     />
     <Popup
     display="anchored"
@@ -301,6 +417,7 @@ function App() {
     showOverlay={false}
     contentPadding={false}
     closeOnOverlayClick={false}
+    
     width={350}
     cssClass="md-tooltip"
   >
@@ -331,7 +448,7 @@ function App() {
       </div>
     </div>
   </Popup>
-  </>
+  </div>
 
   );
 }
