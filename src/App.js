@@ -2,8 +2,10 @@ import { Button, Eventcalendar, formatDate, Popup, setOptions, Toast, localeFa }
 import '@mobiscroll/react/dist/css/mobiscroll.min.css';
 import { useMemo,useState,useRef,useCallback } from 'react';
 import './App.css';
-
-
+import persian from "react-date-object/calendars/persian"
+import persian_fa from "react-date-object/locales/persian_fa"
+import DatePicker from "react-multi-date-picker"
+import "react-multi-date-picker/styles/layouts/mobile.css"
 
 setOptions({
   locale: localeFa,
@@ -115,6 +117,8 @@ function App() {
         background:"#aaaaff",
         color: '#e20000',
         collapsed:true,
+
+        
         children:[{
           id: 23,
           name: 'اتاق101',
@@ -236,13 +240,13 @@ function App() {
   const [buttonType, setButtonType] = useState('');
   const [bgColor, setBgColor] = useState('');
   const [isToastOpen, setToastOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-
+  const [infoRoom, setInfoRoom] = useState('');
+  
   const timerRef = useRef(null);
 
   const inputRef = useRef(null)  
 
-
+  const datePickerRef = useRef()
   const handleEventHoverIn = useCallback((args) => {
     const event = args.event;
     const time = formatDate('hh:mm A', new Date(event.start)) + ' - ' + formatDate('hh:mm A', new Date(event.end));
@@ -298,59 +302,100 @@ function App() {
   const handleToastClose = useCallback(() => {
     setToastOpen(false);
   }, []);
-
+  document.querySelectorAll(".mbsc-timeline-resource-title").forEach(item=>{
+    item.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      e.preventDefault();
+      datePickerRef.current.openCalendar()
+      setInfoRoom(e.target.innerText)
+    })
+ 
+  })
   const setStatusButton = useCallback(() => {
     setOpen(false);
     const index = appointments.findIndex((item) => item.id === currentEvent.id);
     const newApp = [...appointments];
     newApp[index].confirmed = !appointments[index].confirmed;
     setAppointments(newApp);
-    setToastMessage('Appointment ' + (currentEvent.confirmed ? 'confirmed' : 'canceled'));
+    // setToastMessage('Appointment ' + (currentEvent.confirmed ? 'confirmed' : 'canceled'));
     setToastOpen(true);
   }, [appointments, currentEvent]);
 
   const viewFile = useCallback(() => {
     setOpen(false);
-    setToastMessage('View file');
+    // setToastMessage('View file');
     setToastOpen(true);
   }, []);
   const[withCol,setWithCol]=useState(7);
   const deleteApp = useCallback(() => {
     setAppointments(appointments.filter((item) => item.id !== currentEvent.id));
     setOpen(false);
-    setToastMessage('Appointment deleted');
+    // setToastMessage('Appointment deleted');
     setToastOpen(true);
   }, [appointments, currentEvent]);
 
   return (
+    
     <div onClick={(e)=>{
       
-      inputRef.current.querySelectorAll('.mbsc-timeline-day').forEach(item=>{
-        // console.log(inputRef.current)
-        console.log(item.children.forEach(item2=>{
-          console.log(item2)
-        }))
-        //item.style.width=item.style.width/1.2
+      // inputRef.current.querySelectorAll('.mbsc-timeline-day').forEach(item=>{
+      //   // console.log(inputRef.current)
+      //   console.log(item.children.forEach(item2=>{
+      //     console.log(item2)
+      //   }))
+      //   //item.style.width=item.style.width/1.2
 
-      })
-      inputRef.current.querySelectorAll('.mbsc-timeline-column').forEach(item=>{
-        //item.style.width=item.style.width/1.2
-      })
-      inputRef.current.querySelectorAll('.mbsc-timeline-events').forEach(item=>{
-        //item.style.width=item.style.width/1.2
-        //item.style.right=item.style.right/1.2
-      })
+      // })
+      // inputRef.current.querySelectorAll('.mbsc-timeline-column').forEach(item=>{
+      //   //item.style.width=item.style.width/1.2
+      // })
+      // inputRef.current.querySelectorAll('.mbsc-timeline-events').forEach(item=>{
+      //   //item.style.width=item.style.width/1.2
+      //   //item.style.right=item.style.right/1.2
+      // })
    
       setWithCol(withCol-1);
       // inputRef.current.querySelector('.mbsc-timeline').style.width= '100vw';
     }}
     ref={inputRef}>
+      <DatePicker
+
+  calendar={persian}
+  locale={persian_fa}
+  calendarPosition="top-right"
+  numberOfMonths={2}
+  className="rmdp-mobile"
+  multiple
+  range
+  ref={datePickerRef} 
+  style={{display:'none'}}
+
+>
+    <div >
+      <div className="md-tooltip-title">
+           <span className="md-tooltip-reason md-tooltip-text">شماره اتاق:{infoRoom}</span>
+        </div>
+        
+            <div >امکانات</div>
+          <div style={{display:'flex',justifyContent:'end',width:'90%'}}>
+           <div  style={{float:'left',marginTop:10,left:0}}> 3 <img src={require("./bedroom.png")} width={'20%'} style={{width:'20%'}} /></div>
+
+           <div style={{float:'right'}}> دارد<img src={require("./toalet.png")} width={'25%'} style={{width:'25%'}} /></div>
+           </div>
+           </div>
+           
+          
+        
+</DatePicker>
     <Eventcalendar
       // clickToCreate={true}
       dragToCreate={true}
       dragToMove={true}
       dragToResize={true}
-      
+      onCellClick={(args,inst)=>{
+        console.log(args)
+      }}
+    
       // eventDelete={true}
       rtl={true}
           touchUi={"auto"}
