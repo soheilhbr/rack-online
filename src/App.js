@@ -380,7 +380,7 @@ function App() {
           <div style={{display:'flex',justifyContent:'end',width:'90%'}}>
            <div  style={{float:'left',marginTop:10,left:0}}> 3 <img src={require("./bedroom.png")} width={'20%'} style={{width:'20%'}} /></div>
 
-           <div style={{float:'right'}}> دارد<img src={require("./toalet.png")} width={'25%'} style={{width:'25%'}} /></div>
+           <div style={{float:'right'}}> دارد <img src={require("./toalet.png")} width={'25%'} style={{width:'25%'}} /></div>
            </div>
            </div>
            
@@ -426,7 +426,7 @@ function App() {
         args.event.start.setMinutes(0)
         args.event.end.setHours(12)
         args.event.end.setMinutes(0)
-
+        
       }}
       onEventDragEnter={(args,inst)=>{
         // args.event.start.setHours(14)
